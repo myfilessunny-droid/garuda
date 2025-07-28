@@ -82,7 +82,7 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlvdmt5ZWplZ3F2cXhlam14cmxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2OTk0ODUsImV4cCI6MjA2OTI3NTQ4NX0.Y4LFBB3fBnTdRTZDINi-9kknNFZvXmSduGXnCk4ENY8"}`,
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || "YOUR_ANON_KEY"}`
         },
         body: JSON.stringify({
           amount: finalAmount,

@@ -1,7 +1,7 @@
 // Razorpay Configuration
 export const RAZORPAY_CONFIG = {
   // Test Keys - Replace with your actual Razorpay keys
-  TEST_KEY_ID: import.meta.env.VITE_RAZORPAY_TEST_KEY || "rzp_test_3",
+  TEST_KEY_ID: import.meta.env.VITE_RAZORPAY_TEST_KEY || "rzp_test_3qZvN5LXUPhYQK",
   LIVE_KEY_ID: import.meta.env.VITE_RAZORPAY_LIVE_KEY || "rzp_live_YourLiveKeyIDHere", // TODO: Replace with your actual live key
   
   // Supabase Edge Function URL - NEW CLOUD PROJECT
