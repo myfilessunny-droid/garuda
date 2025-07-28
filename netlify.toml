@@ -1,6 +1,6 @@
 [build]
   publish = "dist"
-  command = "chmod +x build.sh && ./build.sh"
+  command = "npm install && npm run build"
 
 [build.environment]
   NODE_VERSION = "18"
