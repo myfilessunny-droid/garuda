@@ -69,6 +69,16 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
       return;
     }
 
+    if (parseInt(finalAmount) < 100) {
+      alert('Minimum donation amount is ₹100');
+      return;
+    }
+
+    console.log('Starting donation process...');
+    console.log('Environment:', import.meta.env.MODE);
+    console.log('Razorpay Key:', RAZORPAY_CONFIG.getKeyId());
+    console.log('Edge Function URL:', RAZORPAY_CONFIG.EDGE_FUNCTION_URL);
+
     const amountInPaise = parseInt(finalAmount) * 100;
 
     const options = {
@@ -115,7 +125,7 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
               method: "POST",
               headers: { 
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+                "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlvdmt5ZWplZ3F2cXhlam14cmxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2OTk0ODUsImV4cCI6MjA2OTI3NTQ4NX0.Y4LFBB3fBnTdRTZDINi-9kknNFZvXmSduGXnCk4ENY8",
               },
               
               body: JSON.stringify(payload),
@@ -140,11 +150,14 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
             };
             onDonate(donationData);
           } else {
-            alert("❌ Donation failed. Please try again.");
+            console.error('Donation failed:', data);
+            const errorMessage = data.error || data.message || 'Unknown error occurred';
+            alert(`❌ Payment failed: ${errorMessage}`);
           }
         } catch (error) {
           console.error('Payment verification failed:', error);
-          alert("❌ Payment verification failed. Please contact support.");
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+          alert(`❌ Payment verification failed: ${errorMessage}`);
         }
       },
       modal: {
