@@ -28,8 +28,6 @@ export interface DonationData {
   isAnonymous: boolean;
 }
 
-
-
 const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false }) => {
   const [form, setForm] = useState({
     amount: '',
@@ -76,103 +74,121 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
 
     console.log('Starting donation process...');
     console.log('Environment:', import.meta.env.MODE);
-    console.log('Razorpay Key:', RAZORPAY_CONFIG.getKeyId());
-    console.log('Edge Function URL:', RAZORPAY_CONFIG.EDGE_FUNCTION_URL);
-
-    const amountInPaise = parseInt(finalAmount) * 100;
-
-    const options = {
-      key: RAZORPAY_CONFIG.getKeyId(),
-      amount: amountInPaise,
-      currency: RAZORPAY_CONFIG.CURRENCY,
-      name: RAZORPAY_CONFIG.NGO_NAME,
-      description: RAZORPAY_CONFIG.NGO_DESCRIPTION,
-      prefill: {
-        name: form.name,
-        email: form.email,
-        contact: form.phone,
-      },
-      notes: {
-        purpose: form.purpose || "General Donation",
-        anonymous: form.is_anonymous ? "Yes" : "No",
-      },
-      theme: {
-        color: RAZORPAY_CONFIG.THEME_COLOR,
-      },
-      handler: async function (response: RazorpayResponse) {
-        try {
-          // ✅ Razorpay sends back payment_id, order_id, signature
-          const payload = {
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_signature: response.razorpay_signature,
-            donor_name: form.name,
-            donor_email: form.email,
-            donor_phone: form.phone,
-            amount: finalAmount,
-            purpose: form.purpose || "donation", // Added fallback for empty purpose
-            is_anonymous: form.is_anonymous,
-          };
-
-          // ✅ Send to Supabase Edge Function (Step 3)
-          console.log('Sending payload:', payload);
-          console.log('Using URL:', RAZORPAY_CONFIG.EDGE_FUNCTION_URL);
-          console.log('Using API key:', import.meta.env.VITE_SUPABASE_ANON_KEY || 'FALLBACK_KEY');
-          
-          const res = await fetch(
-            RAZORPAY_CONFIG.EDGE_FUNCTION_URL,
-            {
-              method: "POST",
-              headers: { 
-                "Content-Type": "application/json",
-                "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlvdmt5ZWplZ3F2cXhlam14cmxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2OTk0ODUsImV4cCI6MjA2OTI3NTQ4NX0.Y4LFBB3fBnTdRTZDINi-9kknNFZvXmSduGXnCk4ENY8",
-              },
-              
-              body: JSON.stringify(payload),
-            }
-          );
-
-          console.log('Response status:', res.status);
-          console.log('Response headers:', Object.fromEntries(res.headers.entries()));
-          
-          const data = await res.json();
-          console.log('Response data:', data);
-          if (data.success) { // Changed from data.status === "success" to data.success
-            alert("✅ Thank you! Your donation was successful.");
-            // Call the parent onDonate function to update UI
-            const donationData: DonationData = {
-              amount: parseInt(finalAmount),
-              donorName: form.name.trim(),
-              donorEmail: form.email.trim(),
-              donorPhone: form.phone.trim() || undefined,
-              purpose: form.purpose.trim() || undefined,
-              isAnonymous: form.is_anonymous
-            };
-            onDonate(donationData);
-          } else {
-            console.error('Donation failed:', data);
-            const errorMessage = data.error || data.message || 'Unknown error occurred';
-            alert(`❌ Payment failed: ${errorMessage}`);
-          }
-        } catch (error) {
-          console.error('Payment verification failed:', error);
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-          alert(`❌ Payment verification failed: ${errorMessage}`);
-        }
-      },
-      modal: {
-        ondismiss: function() {
-          console.log('Payment modal closed');
-        }
-      }
-    };
 
     try {
+      // Step 1: Create Razorpay order securely via Edge Function
+      console.log('Creating Razorpay order...');
+      const orderResponse = await fetch('https://iovkyejegqvqxejmxrla.supabase.co/functions/v1/create-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlvdmt5ZWplZ3F2cXhlam14cmxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2OTk0ODUsImV4cCI6MjA2OTI3NTQ4NX0.Y4LFBB3fBnTdRTZDINi-9kknNFZvXmSduGXnCk4ENY8",
+        },
+        body: JSON.stringify({
+          amount: finalAmount,
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          purpose: form.purpose || "General Donation",
+        }),
+      });
+
+      const orderData = await orderResponse.json();
+      console.log('Order response:', orderData);
+
+      if (!orderData.success) {
+        alert(`❌ Failed to create order: ${orderData.error || 'Unknown error'}`);
+        return;
+      }
+
+      // Step 2: Configure Razorpay with the created order
+      const options = {
+        key: RAZORPAY_CONFIG.getKeyId(),
+        amount: orderData.order.amount,
+        currency: RAZORPAY_CONFIG.CURRENCY,
+        name: RAZORPAY_CONFIG.NGO_NAME,
+        description: RAZORPAY_CONFIG.NGO_DESCRIPTION,
+        order_id: orderData.order.id, // ✅ Important: Use the order ID from backend
+        prefill: {
+          name: form.name,
+          email: form.email,
+          contact: form.phone,
+        },
+        notes: {
+          purpose: form.purpose || "General Donation",
+          anonymous: form.is_anonymous ? "Yes" : "No",
+        },
+        theme: {
+          color: RAZORPAY_CONFIG.THEME_COLOR,
+        },
+        handler: async function (response: RazorpayResponse) {
+          try {
+            // ✅ Razorpay sends back payment_id, order_id, signature
+            const payload = {
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+              donor_name: form.name,
+              donor_email: form.email,
+              donor_phone: form.phone,
+              amount: finalAmount,
+              purpose: form.purpose || "donation",
+              is_anonymous: form.is_anonymous,
+            };
+
+            // ✅ Send to Supabase Edge Function for verification
+            console.log('Sending payload:', payload);
+            const res = await fetch(
+              RAZORPAY_CONFIG.EDGE_FUNCTION_URL,
+              {
+                method: "POST",
+                headers: { 
+                  "Content-Type": "application/json",
+                  "apikey": import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlvdmt5ZWplZ3F2cXhlam14cmxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2OTk0ODUsImV4cCI6MjA2OTI3NTQ4NX0.Y4LFBB3fBnTdRTZDINi-9kknNFZvXmSduGXnCk4ENY8",
+                },
+                body: JSON.stringify(payload),
+              }
+            );
+
+            const data = await res.json();
+            console.log('Verification response:', data);
+            
+            if (data.success) {
+              alert("✅ Thank you! Your donation was successful.");
+              const donationData: DonationData = {
+                amount: parseInt(finalAmount),
+                donorName: form.name.trim(),
+                donorEmail: form.email.trim(),
+                donorPhone: form.phone.trim() || undefined,
+                purpose: form.purpose.trim() || undefined,
+                isAnonymous: form.is_anonymous
+              };
+              onDonate(donationData);
+            } else {
+              console.error('Donation failed:', data);
+              const errorMessage = data.error || data.message || 'Unknown error occurred';
+              alert(`❌ Payment failed: ${errorMessage}`);
+            }
+          } catch (error) {
+            console.error('Payment verification failed:', error);
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+            alert(`❌ Payment verification failed: ${errorMessage}`);
+          }
+        },
+        modal: {
+          ondismiss: function() {
+            console.log('Payment modal closed');
+          }
+        }
+      };
+
+      // Step 3: Open Razorpay checkout
       const rzp = new window.Razorpay(options);
       rzp.open();
+      
     } catch (error) {
-      console.error('Failed to open Razorpay:', error);
-      alert("❌ Payment gateway error. Please try again.");
+      console.error('Failed to create order:', error);
+      alert("❌ Failed to initialize payment. Please try again.");
     }
   };
 
