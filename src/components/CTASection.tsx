@@ -49,10 +49,10 @@ const CTASection: React.FC<CTASectionProps> = ({ content }) => {
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-          <button className="group bg-turmeric text-primary font-semibold px-8 py-4 rounded-xl hover:brightness-110 transition-all duration-300 shadow-lg hover:shadow-glow flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:ring-offset-2 focus-visible:ring-offset-primary">
+          <a href="/donate" className="group bg-turmeric text-primary font-semibold px-8 py-4 rounded-xl hover:brightness-110 transition-all duration-300 shadow-lg hover:shadow-glow flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-turmeric focus-visible:ring-offset-2 focus-visible:ring-offset-primary">
             <Heart className="w-5 h-5 group-hover:scale-110 transition-transform" />
             {content?.cta_donate || 'Donate Now'}
-          </button>
+          </a>
           
           <button className="group bg-white text-primary font-semibold px-8 py-4 rounded-xl hover:bg-gray-100 transition-all duration-300 shadow-lg flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary">
             <Users className="w-5 h-5 group-hover:scale-110 transition-transform" />
