@@ -1,6 +1,6 @@
-# Garuda Dhruvam Foundation Website
+# Garuda Dhruvam NGO Website
 
-A modern, responsive website for the Garuda Dhruvam Foundation built with React, TypeScript, and Supabase.
+A modern, responsive website for Garuda Dhruvam NGO with donation functionality and admin dashboard.
 
 ## 🚀 Quick Start
 
@@ -21,7 +21,7 @@ A modern, responsive website for the Garuda Dhruvam Foundation built with React,
    ```bash
    cp env.example .env
    ```
-   Edit `.env` with your Supabase credentials if needed.
+   Edit `.env` with your Supabase and Razorpay credentials.
 
 4. **Start development server**
    ```bash
@@ -52,19 +52,20 @@ A modern, responsive website for the Garuda Dhruvam Foundation built with React,
 3. **Set Environment Variables**
    In your Netlify dashboard, go to **Site settings** > **Environment variables** and add:
    ```
-   VITE_SUPABASE_URL=https://qcfyyjwcxutxbljhgsbi.supabase.co
-   VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjZnl5andjeHV0eGJsamhnc2JpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0MjM1MTIsImV4cCI6MjA2ODk5OTUxMn0.LX3rKUgSsw46cy3VTCJmYLlZBOV_caHc8x6qRe5xu7Q
+   VITE_SUPABASE_URL=https://iovkyejegqvqxejmxrla.supabase.co
+   VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlvdmt5ZWplZ3F2cXhlam14cmxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2OTk0ODUsImV4cCI6MjA2OTI3NTQ4NX0.Y4LFBB3fBnTdRTZDINi-9kknNFZvXmSduGXnCk4ENY8
+   VITE_RAZORPAY_TEST_KEY=rzp_test_3
    ```
 
 4. **Update Supabase Configuration**
    - Go to your Supabase project dashboard
    - Navigate to **Authentication** > **Settings**
-   - Update **Site URL** to: `https://garudadhruvam.netlify.app`
-   - Add to **Redirect URLs**: `https://garudadhruvam.netlify.app`
+   - Update **Site URL** to: `https://garuda2.netlify.app`
+   - Add to **Redirect URLs**: `https://garuda2.netlify.app`
 
 5. **Deploy**
    - Netlify will automatically build and deploy your site
-   - Your site will be available at: `https://garudadhruvam.netlify.app`
+   - Your site will be available at: `https://garuda2.netlify.app`
 
 ### Troubleshooting
 
@@ -85,11 +86,12 @@ A modern, responsive website for the Garuda Dhruvam Foundation built with React,
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React 18, TypeScript, Vite
-- **Styling**: Tailwind CSS, shadcn/ui
-- **Backend**: Supabase (PostgreSQL, Auth, Storage)
+- **Frontend**: React 18 + TypeScript + Vite
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Payment**: Razorpay Integration
+- **Backend**: Supabase (Database + Edge Functions)
 - **Deployment**: Netlify
-- **State Management**: React Query
+- **State Management**: React Query + React Hook Form
 - **Routing**: React Router DOM
 
 ## 📁 Project Structure
