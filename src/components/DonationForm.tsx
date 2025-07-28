@@ -76,13 +76,13 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
     console.log('Environment:', import.meta.env.MODE);
 
     try {
+      // Step 1: Create Razorpay order securely via Edge Function
       console.log('Creating Razorpay order...');
-    
       const orderResponse = await fetch('https://iovkyejegqvqxejmxrla.supabase.co/functions/v1/create-order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOi..."}`, // use your real anon key
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlvdmt5ZWplZ3F2cXhlam14cmxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2OTk0ODUsImV4cCI6MjA2OTI3NTQ4NX0.Y4LFBB3fBnTdRTZDINi-9kknNFZvXmSduGXnCk4ENY8"}`,
         },
         body: JSON.stringify({
           amount: finalAmount,
@@ -92,30 +92,6 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
           purpose: form.purpose || "General Donation",
         }),
       });
-    
-      const orderData = await orderResponse.json();
-      console.log('Order response:', orderData);
-    
-      if (!orderData.success) {
-        alert(`❌ Failed to create order: ${orderData.error || 'Unknown error'}`);
-        return;
-      }
-    } catch (err) {
-      console.error('Error creating order:', err);
-    }
-    
-
-  const orderData = await orderResponse.json();
-  console.log('Order response:', orderData);
-
-  if (!orderData.success) {
-    alert(`❌ Failed to create order: ${orderData.error || 'Unknown error'}`);
-    return;
-  }
-} catch (err) {
-  console.error('Error creating order:', err);
-}
-
 
       const orderData = await orderResponse.json();
       console.log('Order response:', orderData);
