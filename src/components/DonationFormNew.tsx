@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Heart, Shield, CheckCircle } from 'lucide-react';
+import { Heart, Shield, CheckCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { RAZORPAY_CONFIG, RazorpayResponse, DonationPayload } from '@/config/razorpay';
+import { PAYMENT_CONFIG, PaymentOptions, PaymentResponse, DonationData, CreateOrderRequest, VerifyPaymentRequest } from '@/config/payment';
 
 // Add Razorpay types
 declare global {
@@ -19,16 +19,7 @@ interface DonationFormProps {
   isLoading?: boolean;
 }
 
-export interface DonationData {
-  amount: number;
-  donorName: string;
-  donorEmail: string;
-  donorPhone?: string;
-  purpose?: string;
-  isAnonymous: boolean;
-}
-
-const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false }) => {
+const DonationFormNew: React.FC<DonationFormProps> = ({ onDonate, isLoading = false }) => {
   const [form, setForm] = useState({
     amount: '',
     customAmount: '',
@@ -38,6 +29,8 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
     purpose: '',
     is_anonymous: false,
   });
+
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const presetAmounts = [500, 2000, 5000];
 
@@ -59,7 +52,8 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
     }));
   };
 
-  const handleDonate = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     const finalAmount = form.amount || form.customAmount;
     
     if (!form.name || !form.email || !finalAmount) {
@@ -72,26 +66,39 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
       return;
     }
 
-    console.log('Starting donation process...');
-    console.log('Environment:', import.meta.env.MODE);
+    setIsProcessing(true);
 
     try {
       // Step 1: Create Razorpay order securely via Edge Function
-      console.log('Creating Razorpay order...');
-      const orderResponse = await fetch('https://iovkyejegqvqxejmxrla.supabase.co/functions/v1/create-order', {
+      const orderRequest: CreateOrderRequest = {
+        amount: finalAmount,
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        purpose: form.purpose || "General Donation",
+      };
+
+      console.log('Sending order request to:', PAYMENT_CONFIG.CREATE_ORDER_URL);
+      console.log('Request payload:', orderRequest);
+      
+      const orderResponse = await fetch(PAYMENT_CONFIG.CREATE_ORDER_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || "YOUR_ANON_KEY"}`
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
         },
-        body: JSON.stringify({
-          amount: finalAmount,
-          name: form.name,
-          email: form.email,
-          phone: form.phone,
-          purpose: form.purpose || "General Donation",
-        }),
+        body: JSON.stringify(orderRequest),
       });
+
+      console.log('Response status:', orderResponse.status);
+      console.log('Response headers:', orderResponse.headers);
+
+      if (!orderResponse.ok) {
+        const errorText = await orderResponse.text();
+        console.error('Edge function error:', errorText);
+        alert(`❌ Failed to create order: HTTP ${orderResponse.status} - ${errorText}`);
+        return;
+      }
 
       const orderData = await orderResponse.json();
       console.log('Order response:', orderData);
@@ -102,13 +109,13 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
       }
 
       // Step 2: Configure Razorpay with the created order
-      const options = {
-        key: RAZORPAY_CONFIG.getKeyId(),
+      const options: PaymentOptions = {
+        key: PAYMENT_CONFIG.getKeyId(),
         amount: orderData.order.amount,
-        currency: RAZORPAY_CONFIG.CURRENCY,
-        name: RAZORPAY_CONFIG.NGO_NAME,
-        description: RAZORPAY_CONFIG.NGO_DESCRIPTION,
-        order_id: orderData.order.id, // ✅ Important: Use the order ID from backend
+        currency: PAYMENT_CONFIG.CURRENCY,
+        name: PAYMENT_CONFIG.NGO_NAME,
+        description: PAYMENT_CONFIG.NGO_DESCRIPTION,
+        order_id: orderData.order.id,
         prefill: {
           name: form.name,
           email: form.email,
@@ -119,12 +126,11 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
           anonymous: form.is_anonymous ? "Yes" : "No",
         },
         theme: {
-          color: RAZORPAY_CONFIG.THEME_COLOR,
+          color: PAYMENT_CONFIG.THEME_COLOR,
         },
-        handler: async function (response: RazorpayResponse) {
+        handler: async function (response: PaymentResponse) {
           try {
-            // ✅ Razorpay sends back payment_id, order_id, signature
-            const payload = {
+            const payload: VerifyPaymentRequest = {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_order_id: response.razorpay_order_id,
               razorpay_signature: response.razorpay_signature,
@@ -132,26 +138,21 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
               donor_email: form.email,
               donor_phone: form.phone,
               amount: finalAmount,
-              purpose: form.purpose || "donation",
+              purpose: form.purpose || "General Donation",
               is_anonymous: form.is_anonymous,
             };
 
-            // ✅ Send to Supabase Edge Function for verification
-            console.log('Sending payload:', payload);
-            const res = await fetch(
-              RAZORPAY_CONFIG.EDGE_FUNCTION_URL,
-              {
-                method: "POST",
-                headers: { 
-                  "Content-Type": "application/json",
-                  "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || "YOUR_ANON_KEY"}`,
-                },
-                body: JSON.stringify(payload),
-              }
-            );
+            // Send to Supabase Edge Function for verification
+            const res = await fetch(PAYMENT_CONFIG.VERIFY_PAYMENT_URL, {
+              method: "POST",
+              headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+              },
+              body: JSON.stringify(payload),
+            });
 
             const data = await res.json();
-            console.log('Verification response:', data);
             
             if (data.success) {
               alert("✅ Thank you! Your donation was successful.");
@@ -189,6 +190,8 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
     } catch (error) {
       console.error('Failed to create order:', error);
       alert("❌ Failed to initialize payment. Please try again.");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -215,55 +218,71 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
             Make a Donation
           </CardTitle>
           <CardDescription className="text-gray-600">
-            Your contribution creates lasting impact in rural communities
+            Your contribution helps us revive India's spiritual heritage
           </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* Amount Selection */}
-          <div className="space-y-4">
-            <Label className="text-base font-semibold">Select Donation Amount</Label>
-            
-            <div className="flex justify-center gap-2">
-              {presetAmounts.map((amt) => (
-                <button
-                  key={amt}
-                  onClick={() => handleAmountSelect(amt)}
-                  className={`px-4 py-2 border-2 rounded-xl transition-all duration-200 font-semibold ${
-                    form.amount === amt.toString()
-                      ? 'bg-turmeric text-white border-turmeric'
-                      : 'bg-gray-100 border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  ₹{amt}
-                </button>
-              ))}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Amount Selection */}
+            <div className="space-y-4">
+              <Label className="text-sm font-medium">Select Amount</Label>
+              
+              {/* Preset Amounts */}
+              <div className="grid grid-cols-3 gap-3">
+                {presetAmounts.map((amount) => (
+                  <Button
+                    key={amount}
+                    type="button"
+                    variant={form.amount === amount.toString() ? "default" : "outline"}
+                    className="h-12"
+                    onClick={() => handleAmountSelect(amount)}
+                  >
+                    ₹{amount}
+                  </Button>
+                ))}
+              </div>
+
+              {/* Custom Amount */}
+              <div className="space-y-2">
+                <Label htmlFor="customAmount" className="text-sm">Custom Amount</Label>
+                <Input
+                  type="number"
+                  id="customAmount"
+                  name="customAmount"
+                  placeholder="Enter amount (min ₹100)"
+                  value={form.customAmount}
+                  onChange={handleCustomAmount}
+                  min="100"
+                  className="w-full"
+                />
+              </div>
+
+              {/* Impact Message */}
+              {finalAmount && (
+                <div className="bg-green-50 p-3 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span className="text-sm text-green-700">
+                      {getImpactMessage(finalAmount)}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <Input
-              type="number"
-              name="customAmount"
-              placeholder="Or enter custom amount"
-              value={form.customAmount}
-              onChange={handleCustomAmount}
-              className="w-full"
-              min="100"
-            />
-          </div>
-
-          {/* Donor Information */}
-          <div className="space-y-4">
-            <Label className="text-base font-semibold">Your Information</Label>
-            
-            <div className="space-y-3">
+            {/* Donor Information */}
+            <div className="space-y-4">
               <div>
                 <Label htmlFor="name" className="text-sm">Full Name *</Label>
                 <Input
                   type="text"
+                  id="name"
                   name="name"
-                  placeholder="Your Name"
+                  placeholder="Your Full Name"
                   value={form.name}
                   onChange={handleChange}
+                  required
                   className="w-full"
                 />
               </div>
@@ -272,10 +291,12 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
                 <Label htmlFor="email" className="text-sm">Email Address *</Label>
                 <Input
                   type="email"
+                  id="email"
                   name="email"
                   placeholder="Your Email"
                   value={form.email}
                   onChange={handleChange}
+                  required
                   className="w-full"
                 />
               </div>
@@ -284,6 +305,7 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
                 <Label htmlFor="phone" className="text-sm">Phone Number (Optional)</Label>
                 <Input
                   type="tel"
+                  id="phone"
                   name="phone"
                   placeholder="Phone Number (optional)"
                   value={form.phone}
@@ -296,6 +318,7 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
                 <Label htmlFor="purpose" className="text-sm">Purpose (Optional)</Label>
                 <Input
                   type="text"
+                  id="purpose"
                   name="purpose"
                   placeholder="Purpose (optional)"
                   value={form.purpose}
@@ -305,6 +328,7 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
               </div>
             </div>
 
+            {/* Anonymous Donation */}
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="is_anonymous"
@@ -315,69 +339,44 @@ const DonationForm: React.FC<DonationFormProps> = ({ onDonate, isLoading = false
                 }
               />
               <Label htmlFor="is_anonymous" className="text-sm">
-                Make this donation anonymous
+                Make this an anonymous donation
               </Label>
             </div>
-          </div>
 
-          {/* Impact Preview */}
-          {finalAmount && (
-            <div className="bg-gray-50 rounded-xl p-4">
-              <div className="text-sm text-gray-600">
-                <strong>Your Impact:</strong> {getImpactMessage(finalAmount)}
+            {/* Security Notice */}
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <div className="flex items-start gap-2">
+                <Shield className="w-4 h-4 text-blue-600 mt-0.5" />
+                <div className="text-sm text-blue-700">
+                  <p className="font-medium">Secure Payment</p>
+                  <p>Your payment is processed securely by Razorpay</p>
+                </div>
               </div>
             </div>
-          )}
 
-          {/* Security Note */}
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Shield className="w-4 h-4" />
-            <span>Your payment is secured with bank-level encryption</span>
-          </div>
-
-          {/* Donate Button */}
-          <Button
-            onClick={handleDonate}
-            disabled={isLoading}
-            className="w-full bg-turmeric hover:bg-turmeric/90 text-white font-semibold py-3 text-lg rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
-          >
-            {isLoading ? (
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Processing...
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Heart className="w-5 h-5" />
-                Donate ₹{finalAmount ? parseInt(finalAmount).toLocaleString() : '0'}
-              </div>
-            )}
-          </Button>
-
-          {/* Trust Indicators */}
-          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-gray-500">
-            <div className="flex items-center gap-1">
-              <CheckCircle className="w-3 h-3 text-green-500" />
-              <span>Tax Deductible</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <CheckCircle className="w-3 h-3 text-green-500" />
-              <span>Instant Receipt</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <CheckCircle className="w-3 h-3 text-green-500" />
-              <span>Secure Payment</span>
-            </div>
-          </div>
-
-          {/* Receipt Note */}
-          <p className="text-xs text-gray-500 text-center">
-            You'll receive an email receipt after payment
-          </p>
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              className="w-full h-12 text-lg font-semibold"
+              disabled={isProcessing || isLoading}
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Heart className="w-4 h-4 mr-2" />
+                  Donate ₹{finalAmount || '0'}
+                </>
+              )}
+            </Button>
+          </form>
         </CardContent>
       </Card>
     </div>
   );
 };
 
-export default DonationForm; 
+export default DonationFormNew; 

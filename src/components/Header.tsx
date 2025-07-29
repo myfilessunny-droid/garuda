@@ -65,10 +65,10 @@ const Header = () => {
 
         {/* CTA & Mobile Menu */}
         <div className="flex items-center gap-4">
-          <button className="btn-turmeric hidden sm:inline-flex items-center gap-2">
+          <a href="/donate" className="btn-turmeric hidden sm:inline-flex items-center gap-2">
             <Heart className="w-4 h-4" />
             Donate
-          </button>
+          </a>
           
           {/* Mobile Menu Button */}
           <button
@@ -104,10 +104,10 @@ const Header = () => {
             >
               Admin Login
             </a>
-            <button className="btn-turmeric w-full mt-4 flex items-center justify-center gap-2">
+            <a href="/donate" className="btn-turmeric w-full mt-4 flex items-center justify-center gap-2">
               <Heart className="w-4 h-4" />
               Donate
-            </button>
+            </a>
           </nav>
         </div>
       )}
