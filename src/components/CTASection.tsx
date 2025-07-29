@@ -54,10 +54,10 @@ const CTASection: React.FC<CTASectionProps> = ({ content }) => {
             {content?.cta_donate || 'Donate Now'}
           </a>
           
-          <button className="group bg-white text-primary font-semibold px-8 py-4 rounded-xl hover:bg-gray-100 transition-all duration-300 shadow-lg flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary">
+          <a href="/volunteer" className="group bg-white text-primary font-semibold px-8 py-4 rounded-xl hover:bg-gray-100 transition-all duration-300 shadow-lg flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary">
             <Users className="w-5 h-5 group-hover:scale-110 transition-transform" />
             {content?.cta_volunteer || 'Volunteer'}
-          </button>
+          </a>
         </div>
 
         {/* Impact Preview */}

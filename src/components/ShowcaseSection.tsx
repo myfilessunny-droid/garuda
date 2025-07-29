@@ -1,47 +1,76 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ExternalLink, Camera } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+
+interface GalleryImage {
+  id: string;
+  title: string;
+  description: string | null;
+  image_url: string;
+  category: string;
+  location: string | null;
+}
+
+interface Story {
+  id: string;
+  title: string;
+  excerpt: string | null;
+  content: string;
+  featured_image_url: string | null;
+  category: string;
+  status: string;
+  author_name: string | null;
+  author_role: string | null;
+  read_time_minutes: number | null;
+  is_featured: boolean;
+  published_at: string | null;
+  created_at: string;
+}
 
 const ShowcaseSection = () => {
-  const stories = [
-    {
-      title: "From Ruins to Reverence: Kurnool Temple Revival",
-      snippet: "How a forgotten 400-year-old temple became the heart of community life again...",
-      readTime: "5 min read"
-    },
-    {
-      title: "Weaving Dreams: Women Artisans of Anantapur",
-      snippet: "Traditional handloom skills create modern livelihoods for 200+ women...",
-      readTime: "3 min read"
-    },
-    {
-      title: "Goshala Chronicles: Caring for Sacred Cows",
-      snippet: "Sustainable cow care practices that benefit both animals and farmers...",
-      readTime: "4 min read"
-    }
-  ];
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
+  const [stories, setStories] = useState<Story[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const images = [
-    {
-      src: "/api/placeholder/400/300",
-      alt: "Temple restoration before and after",
-      caption: "Kurnool Temple Revival"
-    },
-    {
-      src: "/api/placeholder/400/300", 
-      alt: "Women weaving traditional textiles",
-      caption: "Artisan Training Program"
-    },
-    {
-      src: "/api/placeholder/400/300",
-      alt: "Children learning in temple courtyard",
-      caption: "Cultural Education"
-    },
-    {
-      src: "/api/placeholder/400/300",
-      alt: "Artisans painting traditional motifs",
-      caption: "Heritage Art Revival"
+  useEffect(() => {
+    fetchGalleryImages();
+    fetchFeaturedStories();
+  }, []);
+
+  const fetchGalleryImages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('gallery')
+        .select('*')
+        .eq('is_featured', true)
+        .limit(4)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setGalleryImages(data || []);
+    } catch (error) {
+      console.error('Failed to fetch gallery images:', error);
     }
-  ];
+  };
+
+  const fetchFeaturedStories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('stories')
+        .select('*')
+        .eq('is_featured', true)
+        .eq('status', 'published')
+        .limit(3)
+        .order('published_at', { ascending: false });
+
+      if (error) throw error;
+      setStories(data || []);
+    } catch (error) {
+      console.error('Failed to fetch featured stories:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <section id="stories" className="py-24 px-6 lg:px-20 max-w-7xl mx-auto">
@@ -57,58 +86,89 @@ const ShowcaseSection = () => {
           </h3>
           
           <div className="space-y-6">
-            {stories.map((story, index) => (
-              <article
-                key={index}
-                className="bg-white border-l-4 border-sandalwood p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow"
-              >
-                <h4 className="text-lg font-medium text-primary mb-2 leading-snug">
-                  {story.title}
-                </h4>
-                <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
-                  {story.snippet}
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">
-                    {story.readTime}
-                  </span>
-                  <button className="story-link text-sm text-accent hover:text-accent/80 transition-colors font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md px-2 py-1">
-                    Read More
-                  </button>
-                </div>
-              </article>
-            ))}
+            {loading ? (
+              // Loading placeholders
+              Array.from({ length: 3 }).map((_, index) => (
+                <article
+                  key={index}
+                  className="bg-white border-l-4 border-sandalwood p-6 rounded-xl shadow-md animate-pulse"
+                >
+                  <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-3"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                </article>
+              ))
+            ) : (
+              // Actual stories
+              stories.map((story, index) => (
+                <article
+                  key={story.id}
+                  className="bg-white border-l-4 border-sandalwood p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow"
+                >
+                  <h4 className="text-lg font-medium text-primary mb-2 leading-snug">
+                    {story.title}
+                  </h4>
+                  <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
+                    {story.excerpt || 'Read our latest story from the ground...'}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">
+                      {story.read_time_minutes || 5} min read
+                    </span>
+                    <button className="story-link text-sm text-accent hover:text-accent/80 transition-colors font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md px-2 py-1">
+                      Read More
+                    </button>
+                  </div>
+                </article>
+              ))
+            )}
           </div>
         </div>
 
         {/* Right Column - Visual Grid */}
         <div>
           <div className="grid grid-cols-2 gap-4">
-            {images.map((image, index) => (
-              <div
-                key={index}
-                className="group relative rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
-              >
-                <div className="aspect-square bg-gradient-to-br from-sandalwood/20 to-accent/10 flex items-center justify-center">
+            {loading ? (
+              // Loading placeholders
+              Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="aspect-square bg-gradient-to-br from-sandalwood/20 to-accent/10 flex items-center justify-center animate-pulse"
+                >
                   <Camera className="w-8 h-8 text-accent/40" />
                 </div>
-                
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-primary/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <div className="text-center text-white">
-                    <ExternalLink className="w-6 h-6 mx-auto mb-2" />
-                    <p className="text-sm font-medium">{image.caption}</p>
+              ))
+            ) : (
+              // Actual gallery images
+              galleryImages.map((image, index) => (
+                <div
+                  key={image.id}
+                  className="group relative rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
+                >
+                  <img
+                    src={image.image_url}
+                    alt={image.title}
+                    className="w-full h-full object-cover aspect-square"
+                    loading="lazy"
+                  />
+                  
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-primary/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <div className="text-center text-white">
+                      <ExternalLink className="w-6 h-6 mx-auto mb-2" />
+                      <p className="text-sm font-medium">{image.title}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
           {/* CTA Button */}
           <div className="mt-8 text-center">
-            <button className="btn-primary">
+            <a href="/stories" className="btn-primary">
               See Our Stories
-            </button>
+            </a>
           </div>
         </div>
       </div>
@@ -122,13 +182,13 @@ const ShowcaseSection = () => {
           </div>
           <div className="w-px h-12 bg-border"></div>
           <div>
-            <div className="text-2xl font-bold text-accent">1000+</div>
-            <div className="text-sm text-muted-foreground">Photos & Videos</div>
+            <div className="text-2xl font-bold text-accent">100+</div>
+            <div className="text-sm text-muted-foreground">Photos Shared</div>
           </div>
           <div className="w-px h-12 bg-border"></div>
           <div>
-            <div className="text-2xl font-bold text-accent">24/7</div>
-            <div className="text-sm text-muted-foreground">Community Updates</div>
+            <div className="text-2xl font-bold text-accent">25+</div>
+            <div className="text-sm text-muted-foreground">Villages Impacted</div>
           </div>
         </div>
       </div>

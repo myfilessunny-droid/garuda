@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Heart } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,6 +25,38 @@ const Header = () => {
     { label: 'Contact', href: '#contact' }
   ];
 
+  const handleContactClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const footer = document.querySelector('footer');
+    if (footer) {
+      footer.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleNavClick = (e: React.MouseEvent, href: string, label: string) => {
+    e.preventDefault();
+    
+    // If we're not on the homepage, navigate to homepage first
+    if (location.pathname !== '/') {
+      navigate(`/${href}`);
+    } else {
+      // If we're on homepage, scroll to the section
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+    
+    // Close mobile menu if open
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleLogoClick = () => {
+    if (location.pathname !== '/') {
+      navigate('/');
+    }
+  };
+
   return (
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out ${
@@ -30,10 +65,14 @@ const Header = () => {
           : 'bg-white/70 backdrop-blur-lg shadow-sm h-18 md:h-20'
       }`}
     >
-      <div className="container mx-auto px-4 md:px-10 h-full flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-full">
         {/* Logo */}
         <div className="flex items-center">
-          <div className="w-36 md:w-48" aria-label="Home Logo">
+          <div 
+            className="w-36 md:w-48 cursor-pointer" 
+            aria-label="Home Logo"
+            onClick={handleLogoClick}
+          >
             <h1 className="text-xl md:text-2xl font-semibold">
               <span className="text-primary font-sans">Garuda</span>{' '}
               <span className="text-accent font-serif">Dhruvam</span>
@@ -48,6 +87,13 @@ const Header = () => {
             <a
               key={item.label}
               href={item.href}
+              onClick={(e) => {
+                if (item.label === 'Contact') {
+                  handleContactClick(e);
+                } else {
+                  handleNavClick(e, item.href, item.label);
+                }
+              }}
               className="text-sm md:text-base font-light tracking-wide text-foreground hover:text-accent px-3 py-2 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
             >
               {item.label}
@@ -84,12 +130,19 @@ const Header = () => {
       {/* Mobile Navigation */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-ivory border-t border-border shadow-lg">
-          <nav className="container mx-auto px-4 py-6 space-y-4">
+          <nav className="px-6 py-4">
             {navItems.map((item) => (
               <a
                 key={item.label}
                 href={item.href}
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={(e) => {
+                  if (item.label === 'Contact') {
+                    e.preventDefault();
+                    handleContactClick(e);
+                  } else {
+                    handleNavClick(e, item.href, item.label);
+                  }
+                }}
                 className="block py-3 text-lg font-medium text-foreground hover:text-accent border-b border-border/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
               >
                 {item.label}

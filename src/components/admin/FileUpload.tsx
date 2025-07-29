@@ -46,24 +46,30 @@ const FileUpload = ({
       const filePath = `${fileName}`;
 
       // Upload file to Supabase Storage
-      const { error: uploadError } = await supabase.storage
+      const { data, error: uploadError } = await supabase.storage
         .from(bucket)
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw new Error(uploadError.message);
+      }
 
       // Get public URL
-      const { data } = supabase.storage
+      const { data: urlData } = supabase.storage
         .from(bucket)
         .getPublicUrl(filePath);
 
-      const publicUrl = data.publicUrl;
+      const publicUrl = urlData.publicUrl;
       setPreviewUrl(publicUrl);
       onUploadComplete(publicUrl);
       toast.success('File uploaded successfully');
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error('Failed to upload file');
+      toast.error(`Failed to upload file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsUploading(false);
     }
@@ -74,6 +80,65 @@ const FileUpload = ({
     onUploadComplete('');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        // Process the file directly instead of creating a fake event
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error('File size must be less than 5MB');
+          return;
+        }
+        
+        setIsUploading(true);
+        
+        // Create unique filename
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        // Upload file to Supabase Storage
+        supabase.storage
+          .from(bucket)
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false
+          })
+          .then(({ data, error: uploadError }) => {
+            if (uploadError) {
+              console.error('Upload error:', uploadError);
+              throw new Error(uploadError.message);
+            }
+
+            // Get public URL
+            const { data: urlData } = supabase.storage
+              .from(bucket)
+              .getPublicUrl(filePath);
+
+            const publicUrl = urlData.publicUrl;
+            setPreviewUrl(publicUrl);
+            onUploadComplete(publicUrl);
+            toast.success('File uploaded successfully');
+          })
+          .catch((error) => {
+            console.error('Upload error:', error);
+            toast.error(`Failed to upload file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          })
+          .finally(() => {
+            setIsUploading(false);
+          });
+      } else {
+        toast.error('Please select an image file');
+      }
     }
   };
 
@@ -105,7 +170,12 @@ const FileUpload = ({
           </Button>
         </div>
       ) : (
-        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
+        <div 
+          className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer"
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          onClick={() => fileInputRef.current?.click()}
+        >
           <Image className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
           <p className="text-sm text-muted-foreground mb-2">
             Drag and drop an image, or click to select
@@ -114,7 +184,6 @@ const FileUpload = ({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
             className="gap-2"
           >

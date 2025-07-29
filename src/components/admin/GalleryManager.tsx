@@ -219,7 +219,7 @@ const GalleryManager = () => {
               <div>
                 <Label>Photo Upload *</Label>
                 <FileUpload
-                  bucket="gallery-images"
+                  bucket="gallery"
                   onUploadComplete={(url) => setFormData({ ...formData, image_url: url })}
                   currentUrl={formData.image_url}
                 />

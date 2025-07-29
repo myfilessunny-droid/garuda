@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Edit, Trash2, DollarSign, Receipt } from "lucide-react";
+import { Plus, Edit, Trash2, Receipt } from "lucide-react";
 
 interface Donation {
   id: string;
@@ -391,7 +391,7 @@ const DonationsManager = () => {
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <DollarSign className="w-4 h-4 text-green-600" />
+                    <span className="text-xl font-bold text-green-600">₹</span>
                     <h3 className="text-lg font-semibold">
                       {donation.is_anonymous ? 'Anonymous Donor' : donation.donor_name}
                     </h3>

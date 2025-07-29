@@ -1,16 +1,17 @@
-import { cn } from "@/lib/utils";
+import React from 'react';
+import { cn } from '@/lib/utils';
 import { 
   LayoutDashboard, 
+  Target, 
   FileText, 
   Camera, 
   Calendar, 
-  DollarSign, 
-  Users, 
+  Users,
   Settings,
-  Target
-} from "lucide-react";
+  Mail 
+} from 'lucide-react';
 
-type ActiveTab = 'dashboard' | 'programs' | 'stories' | 'gallery' | 'events' | 'donations' | 'volunteers' | 'content';
+type ActiveTab = 'dashboard' | 'programs' | 'stories' | 'gallery' | 'events' | 'donations' | 'volunteers' | 'participants' | 'content' | 'subscribers';
 
 interface AdminSidebarProps {
   activeTab: ActiveTab;
@@ -24,8 +25,10 @@ const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
     { id: 'stories', label: 'Stories & Blog', icon: FileText },
     { id: 'gallery', label: 'Gallery', icon: Camera },
     { id: 'events', label: 'Events', icon: Calendar },
-    { id: 'donations', label: 'Donations', icon: DollarSign },
+    { id: 'donations', label: 'Donations', icon: '₹' },
     { id: 'volunteers', label: 'Volunteers', icon: Users },
+    { id: 'participants', label: 'Participants', icon: Users },
+    { id: 'subscribers', label: 'Subscribers', icon: Mail },
     { id: 'content', label: 'Website Content', icon: Settings },
   ];
 
@@ -34,7 +37,6 @@ const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
       <nav className="p-4">
         <ul className="space-y-2">
           {menuItems.map((item) => {
-            const Icon = item.icon;
             const isActive = activeTab === item.id;
             
             return (
@@ -48,7 +50,11 @@ const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
                 >
-                  <Icon className="w-4 h-4" />
+                  {typeof item.icon === 'string' ? (
+                    <span className="text-lg font-bold">{item.icon}</span>
+                  ) : (
+                    <item.icon className="w-4 h-4" />
+                  )}
                   {item.label}
                 </button>
               </li>

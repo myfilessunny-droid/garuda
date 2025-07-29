@@ -9,6 +9,10 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import TestPayment from "./pages/TestPayment";
 import DonatePage from "./pages/DonatePage";
+import VolunteerPage from "./pages/VolunteerPage";
+import ParticipantPage from "./pages/ParticipantPage";
+import StoriesPage from "./pages/StoriesPage";
+import StoryDetailPage from "./pages/StoryDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +25,10 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/donate" element={<DonatePage />} />
+          <Route path="/volunteer" element={<VolunteerPage />} />
+          <Route path="/participant" element={<ParticipantPage />} />
+          <Route path="/stories" element={<StoriesPage />} />
+          <Route path="/story/:id" element={<StoryDetailPage />} />
           <Route path="/test-payment" element={<TestPayment />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           {/* Protected admin dashboard route */}

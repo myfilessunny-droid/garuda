@@ -11,7 +11,9 @@ import GalleryManager from '@/components/admin/GalleryManager';
 import EventsManager from '@/components/admin/EventsManager';
 import DonationsManager from '@/components/admin/DonationsManager';
 import VolunteersManager from '@/components/admin/VolunteersManager';
+import ParticipantsManager from '@/components/admin/ParticipantsManager';
 import ContentManager from '@/components/admin/ContentManager';
+import SubscribersManager from '@/components/admin/SubscribersManager';
 
 type AdminUser = {
   id: string;
@@ -21,7 +23,7 @@ type AdminUser = {
   loginTime: string;
 };
 
-type ActiveTab = 'dashboard' | 'programs' | 'stories' | 'gallery' | 'events' | 'donations' | 'volunteers' | 'content';
+type ActiveTab = 'dashboard' | 'programs' | 'stories' | 'gallery' | 'events' | 'donations' | 'volunteers' | 'participants' | 'content' | 'subscribers';
 
 const AdminDashboard = () => {
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
@@ -88,8 +90,12 @@ const AdminDashboard = () => {
         return <DonationsManager />;
       case 'volunteers':
         return <VolunteersManager />;
+      case 'participants':
+        return <ParticipantsManager />;
       case 'content':
         return <ContentManager />;
+      case 'subscribers':
+        return <SubscribersManager />;
       default:
         return <DashboardStats />;
     }

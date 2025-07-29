@@ -253,7 +253,7 @@ const EventsManager = () => {
               <div>
                 <Label>Event Image</Label>
                 <FileUpload
-                  bucket="event-images"
+                  bucket="events"
                   onUploadComplete={(url) => setFormData({ ...formData, image_url: url })}
                   currentUrl={formData.image_url}
                 />
