@@ -11,7 +11,7 @@ const TrustSection = () => {
 
   const testimonials = [
     {
-      quote: "Garuda Dhruvam's temple work rekindled our community's spiritual heartbeat.",
+      quote: "Garuda Dhhruvam's temple work rekindled our community's spiritual heartbeat.",
       author: "Aruna Devi",
       role: "Kurnool Temple Priestess"
     },
@@ -37,7 +37,7 @@ const TrustSection = () => {
   return (
     <section id="trust" className="py-24 px-6 lg:px-20 max-w-7xl mx-auto bg-ivory">
       <h2 className="text-center text-4xl font-semibold text-primary mb-12">
-        Why Trust Garuda Dhruvam?
+        Why Trust Garuda Dhhruvam?
       </h2>
 
       {/* Metrics */}

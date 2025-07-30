@@ -45,9 +45,20 @@ const Footer = () => {
     try {
       const { error } = await supabase
         .from('subscribers')
-        .insert([{ email }]);
+        .insert([{ 
+          email,
+          subscribed_at: new Date().toISOString(),
+          is_active: true
+        }]);
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === '23505') {
+          alert('This email is already subscribed to our newsletter!');
+        } else {
+          throw error;
+        }
+        return;
+      }
       
       setEmail('');
       alert('Thank you for subscribing to our newsletter!');
@@ -80,10 +91,10 @@ const Footer = () => {
                 <div className="flex items-center gap-3 text-sm text-foreground/80">
                   <Mail className="w-4 h-4 text-accent" />
                   <a 
-                    href={`mailto:${contactInfo?.email || 'hello@garudadhruvam.org'}`}
+                    href={`mailto:${contactInfo?.email || 'hello@garudaDhhruvam.org'}`}
                     className="hover:text-accent transition-colors"
                   >
-                    {contactInfo?.email || 'hello@garudadhruvam.org'}
+                    {contactInfo?.email || 'hello@garudaDhhruvam.org'}
                   </a>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-foreground/80">
@@ -155,7 +166,7 @@ const Footer = () => {
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <div className="text-center md:text-left">
                 <p className="text-sm text-muted-foreground">
-                  © 2025 Garuda Dhruvam Foundation. All rights reserved.
+                  © 2025 Garuda Dhhruvam Foundation. All rights reserved.
                 </p>
               </div>
               <div className="flex items-center gap-2">

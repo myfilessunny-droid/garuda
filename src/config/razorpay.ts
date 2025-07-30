@@ -8,7 +8,7 @@ export const RAZORPAY_CONFIG = {
   EDGE_FUNCTION_URL: "https://iovkyejegqvqxejmxrla.supabase.co/functions/v1/create-donation",
   
   // NGO Details
-  NGO_NAME: "Garuda Dhruvam NGO",
+  NGO_NAME: "Garuda Dhhruvam NGO",
   NGO_DESCRIPTION: "Donation for Rural Development",
   
   // Theme

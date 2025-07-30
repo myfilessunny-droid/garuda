@@ -61,16 +61,25 @@ const AdminLogin = () => {
     <div className="min-h-screen bg-gradient-to-br from-ivory to-sandalwood/20 flex items-center justify-center p-6">
       <Card className="w-full max-w-md shadow-xl border-sandalwood/20">
         <CardHeader className="text-center pb-2">
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-between items-center mb-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="text-primary border-primary/20 hover:bg-primary/10"
+            >
+              ← Back to Main
+            </Button>
             <div className="p-3 bg-primary/10 rounded-full">
               <Shield className="w-8 h-8 text-primary" />
             </div>
+            <div className="w-24"></div> {/* Spacer for centering */}
           </div>
           <CardTitle className="text-2xl font-semibold text-primary">
             Admin Login
           </CardTitle>
           <p className="text-muted-foreground text-sm">
-            Garuda Dhruvam Foundation
+            Garuda Dhhruvam Foundation
           </p>
         </CardHeader>
         <CardContent>
@@ -82,7 +91,7 @@ const AdminLogin = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@garudadhruvam.org"
+                placeholder=""
                 required
                 className="mt-1"
               />
@@ -95,7 +104,7 @@ const AdminLogin = () => {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
+                  placeholder=""
                   required
                 />
                 <button

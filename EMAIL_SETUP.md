@@ -13,7 +13,7 @@ The email receipt functionality has been implemented in the Edge Function. Here'
 ### **🔧 Step 2: Configure Domain (Optional but Recommended)**
 
 For production, you should verify your domain:
-- Add `donations@garudadhruvam.org` as a verified sender
+- Add `donations@garudaDhhruvam.org` as a verified sender
 - Or use Resend's default domain: `onboarding@resend.dev`
 
 ### **🔧 Step 3: Add Environment Variable**
@@ -55,7 +55,7 @@ The email uses:
 - **Color Scheme**: Turmeric (#FBC02D) matching your brand
 - **Font**: Arial, clean and readable
 - **Layout**: Responsive design for mobile
-- **Branding**: Garuda Dhruvam Foundation
+- **Branding**: Garuda Dhhruvam Foundation
 
 ### **🔍 Testing**
 

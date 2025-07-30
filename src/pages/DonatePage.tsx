@@ -85,7 +85,7 @@ const DonatePage: React.FC = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-2xl font-bold text-gray-900">
                     <CheckCircle className="w-6 h-6 text-green-600" />
-                    Why Donate to Garuda Dhruvam?
+                    Why Donate to Garuda Dhhruvam?
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">

@@ -68,9 +68,19 @@ const SubscribersManager = () => {
       } else {
         const { error } = await supabase
           .from('subscribers')
-          .insert([formData]);
+          .insert([{
+            ...formData,
+            subscribed_at: new Date().toISOString()
+          }]);
 
-        if (error) throw error;
+        if (error) {
+          if (error.code === '23505') {
+            toast.error('This email is already subscribed!');
+          } else {
+            throw error;
+          }
+          return;
+        }
         toast.success('Subscriber added successfully');
       }
 
@@ -79,6 +89,7 @@ const SubscribersManager = () => {
       resetForm();
       fetchSubscribers();
     } catch (error) {
+      console.error('Error saving subscriber:', error);
       toast.error('Failed to save subscriber');
     } finally {
       setIsLoading(false);

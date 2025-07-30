@@ -24,7 +24,7 @@ const OurStorySection = () => {
           
           <div className="prose prose-lg">
             <p className="text-lg text-foreground/80 leading-relaxed mb-10 max-w-[65ch]">
-              Garuda Dhruvam Foundation was founded in 2025 by Srimati J. Tejavati with a sacred mission — 
+              Garuda Dhhruvam Foundation was founded in 2025 by Srimati J. Tejavati with a sacred mission — 
               to restore India's spiritual heritage, revive forgotten temples, and empower villages through 
               culture and self-sufficiency. Inspired by principles of sustainability, equality, and tradition, 
               the organization believes that true transformation begins within our roots.

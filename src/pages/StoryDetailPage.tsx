@@ -68,7 +68,7 @@ const StoryDetailPage = () => {
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: story?.title || 'Story from Garuda Dhruvam',
+        title: story?.title || 'Story from Garuda Dhhruvam',
         url: window.location.href,
       });
     } else {

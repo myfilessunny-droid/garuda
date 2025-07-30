@@ -315,7 +315,7 @@ const ContentManager = () => {
                 type="email"
                 value={localContact.email}
                 onChange={(e) => setLocalContact({ ...localContact, email: e.target.value })}
-                placeholder="hello@garudadhruvam.org"
+                placeholder="hello@garudaDhhruvam.org"
               />
             </div>
             <div>

@@ -75,7 +75,7 @@ const Header = () => {
           >
             <h1 className="text-xl md:text-2xl font-semibold">
               <span className="text-primary font-sans">Garuda</span>{' '}
-              <span className="text-accent font-serif">Dhruvam</span>
+              <span className="text-accent font-serif">Dhhruvam</span>
             </h1>
             <p className="text-xs text-muted-foreground -mt-1">Foundation</p>
           </div>

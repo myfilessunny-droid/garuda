@@ -1,6 +1,6 @@
-# Garuda Dhruvam NGO Website
+# Garuda Dhhruvam NGO Website
 
-A modern, responsive website for Garuda Dhruvam NGO with donation functionality and admin dashboard.
+A modern, responsive website for Garuda Dhhruvam NGO with donation functionality and admin dashboard.
 
 ## 🚀 Quick Start
 

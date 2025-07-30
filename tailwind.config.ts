@@ -62,7 +62,7 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Garuda Dhruvam Foundation Custom Colors
+				// Garuda Dhhruvam Foundation Custom Colors
 				sandalwood: 'hsl(var(--sandalwood))',
 				'clay-red': 'hsl(var(--clay-red))',
 				indigo: 'hsl(var(--indigo))',

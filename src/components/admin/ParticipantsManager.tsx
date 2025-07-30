@@ -109,11 +109,15 @@ const ParticipantsManager = () => {
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error deleting participant:', error);
+        throw error;
+      }
       toast.success('Participant deleted successfully');
       fetchParticipants();
     } catch (error) {
-      toast.error('Failed to delete participant');
+      console.error('Failed to delete participant:', error);
+      toast.error('Failed to delete participant. Please try again.');
     }
   };
 

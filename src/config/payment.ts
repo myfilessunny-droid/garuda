@@ -9,7 +9,7 @@ export const PAYMENT_CONFIG = {
   VERIFY_PAYMENT_URL: "https://iovkyejegqvqxejmxrla.supabase.co/functions/v1/verify-payment",
   
   // NGO Details
-  NGO_NAME: "Garuda Dhruvam Foundation",
+  NGO_NAME: "Garuda Dhhruvam Foundation",
   NGO_DESCRIPTION: "Donation for Rural Development and Cultural Preservation",
   
   // Theme

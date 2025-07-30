@@ -32,7 +32,7 @@ const AdminHeader = ({ adminUser, onLogout }: AdminHeaderProps) => {
           </button>
           <div>
             <h1 className="text-xl font-semibold text-primary">
-              Garuda Dhruvam Foundation
+              Garuda Dhhruvam Foundation
             </h1>
             <p className="text-sm text-muted-foreground">Admin Dashboard</p>
           </div>

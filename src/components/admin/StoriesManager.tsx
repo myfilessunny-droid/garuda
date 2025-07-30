@@ -242,7 +242,7 @@ const StoriesManager = () => {
               <div>
                 <Label>Featured Image</Label>
                 <FileUpload
-                  bucket="story-images"
+                  bucket="story"
                   onUploadComplete={(url) => setFormData({ ...formData, featured_image_url: url })}
                   currentUrl={formData.featured_image_url}
                 />

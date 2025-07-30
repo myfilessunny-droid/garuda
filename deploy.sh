@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Garuda Dhruvam Foundation - Netlify Deployment Script
+# Garuda Dhhruvam Foundation - Netlify Deployment Script
 
 echo "🚀 Starting deployment process..."
 
@@ -45,7 +45,7 @@ if [ $? -eq 0 ]; then
     echo "3. Set environment variables in Netlify dashboard:"
     echo "   - VITE_SUPABASE_URL=https://qcfyyjwcxutxbljhgsbi.supabase.co"
     echo "   - VITE_SUPABASE_ANON_KEY=your_anon_key"
-    echo "4. Update Supabase site URL to: https://garudadhruvam.netlify.app"
+    echo "4. Update Supabase site URL to: https://garudaDhhruvam.netlify.app"
     echo "5. Deploy!"
     echo ""
     echo "📁 Build output is in the 'dist' directory"
