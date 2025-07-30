@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Play, ArrowDown } from 'lucide-react';
 import heroBg from '@/assets/hero-bg.jpg';
 import JoinMovementModal from './JoinMovementModal';
+import GarudaEmblem from './GarudaEmblem';
 
 interface HeroSectionProps {
   content?: {
@@ -31,7 +32,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ content, stats }) => {
         <div className="absolute inset-0 bg-black/40"></div>
         
         {/* Floating Animation Elements */}
-        <div className="absolute top-20 left-10 text-6xl animate-bounce">☸️</div>
+        <div className="absolute top-20 left-10 animate-bounce">
+          <GarudaEmblem size={80} className="drop-shadow-lg" />
+        </div>
         
         {/* Main Content */}
         <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-4">
