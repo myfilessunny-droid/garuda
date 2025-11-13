@@ -179,6 +179,7 @@ const DonationFormNew: React.FC<DonationFormProps> = ({ onDonate, isLoading = fa
         modal: {
           ondismiss: function() {
             console.log('Payment modal closed');
+            setIsProcessing(false);
           }
         }
       };
