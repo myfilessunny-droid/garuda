@@ -1,5 +1,5 @@
 import React from 'react';
-import founderPortrait from '@/assets/founder-portrait.jpg';
+import founderPortrait from '@/assets/founder-portrait-2.jpg';
 
 const OurStorySection = () => {
   return (
